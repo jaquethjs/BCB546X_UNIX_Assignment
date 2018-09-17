@@ -1,4 +1,4 @@
-#UNIX Assignment
+### **UNIX Assignment** ###
 
 * This repository contains the files for ISU BCB546X class UNIX assignment
 
@@ -9,12 +9,12 @@
 
 
 
-##_Data Computing Location & Issue with GitHub_
+### **Data Computing Location & Issue with GitHub** ###
 This assignment was completed at my worksite on Pioneer Hi-Bred's HPC cluster. The working folder is 
 /home/jaquetje/BCB546X_2018/assignments/UNIX\_Assignment
 
 
-##_Data Inspection_
+### **Data Inspection** ###
 
 In this section, I used UNIX commands to inspected two files  `fang_et_al_genotypes.txt` and 
  `snp_position.txt`
@@ -78,7 +78,7 @@ The file size is 81K and it was last modified Sept 2 13:29.
 
 
 
-##_Data Processing Script_
+## **Data Processing Script**
 
 I made these data processing steps into a script called `UNIX_Data_Processing.sh ` This script can be run with these commands
 
@@ -86,11 +86,12 @@ I made these data processing steps into a script called `UNIX_Data_Processing.sh
 
 >`$ ./UNIX_Data_Processing.sh `
 
-##_Steps in the Data Processing Script_
+## **Steps in the Data Processing Script**
 
 First I extracted the maize and teosinte marker data into separate genotype files, including "Group" to get the SNP name.
 
 > `$ grep -E "(Group|ZMMIL|ZMMLR|ZMMMR)" fang_et_al_genotypes.txt > maize_genotypes.txt   `
+>
 > `$ grep -E "(Group|ZMPBA|ZMPIL|ZMPJA)" fang_et_al_genotypes.txt > teosinte_genotypes.txt   `
 > 
 
@@ -99,6 +100,7 @@ First I extracted the maize and teosinte marker data into separate genotype file
 Then I transposed both files
 
 >`$ awk -f transpose.awk maize_genotypes.txt > transposed_maize_genotypes.txt `
+>
 >`$ awk -f transpose.awk teosinte_genotypes.txt > transposed_teosinte_genotypes.txt `
 
 
@@ -106,6 +108,7 @@ Then in the snp_positions.txt, I removed the header (so the header wouldn't not 
 
 
 >`$ sed '1d' snp_position.txt | sort -k1,1  > snp_position_sorted.txt `
+>
 >`$ sort -k1,1 -c snp_position_sorted.txt   `
 
 
@@ -119,6 +122,7 @@ Then in the transposed files, I removed the 3 header rows (so the header wouldn'
 
 
 >`$ sed '1,3d' transposed_maize_genotypes.txt | sort -k1,1  > transposed_maize_genotypes_sorted.txt `
+>
 >`$ sed '1,3d' transposed_teosinte_genotypes.txt | sort -k1,1  > transposed_teosinte_genotypes_sorted.txt `
 
 
@@ -126,16 +130,19 @@ Then in the transposed files, I removed the 3 header rows (so the header wouldn'
 Finally, the files are sorted without headers so I can join them. I added the -t $'\t' to make it tab delimited instead of white space.
 
 >`$ join -1 1 -2 1 snp_for_join.txt transposed_maize_genotypes_sorted.txt -t $'\t' > maize_full.txt `
+>
 >`$ join -1 1 -2 1 snp_for_join.txt transposed_teosinte_genotypes_sorted.txt -t $'\t' > teosinte_full.txt `
 
 To create 10 files, I used a `while` loop, making sure to pass the shell variable to `awk`. The shell variable for chr is "i" and the awk variable is "awk\_i". This creates 10 sorted files named maize_chr$i.txt. Then I did the same for teosinte.
 
 >`$ i=1; while [[ $i -le 10 ]]; do awk -v awk_i=$i '$2 == awk_i' maize_full.txt | sort -k3,3n > maize_chr$i.txt; let i=i+1; done  `
+>
 >`$ i=1; while [[ $i -le 10 ]]; do awk -v awk_i=$i '$2 == awk_i' teosinte_full.txt | sort -k3,3n > teosinte_chr$i.txt; let i=i+1; done  `
 
 Then I reverse sorted and changed ?/? to -/- for both the maize and teosinte files.
 
 >`$ i=1; while [[ $i -le 10 ]]; do awk -v awk_i=$i '$2 == awk_i' maize_full.txt | sort -k3,3nr | sed 's/\?/-/g'  > maize_rev_chr$i.txt; let i=i+1; done  `
+>
 >`$ i=1; while [[ $i -le 10 ]]; do awk -v awk_i=$i '$2 == awk_i' teosinte_full.txt | sort -k3,3nr | sed 's/\?/-/g'  > teosinte_rev_chr$i.txt; let i=i+1; done  `
 
 
@@ -146,5 +153,6 @@ Next I created the files with SNPs with unknown positions.
 
 Finally I created the files with SNPs with multiple positions.
 >`$ grep "multiple" maize_full.txt > maize_chr_multiple.txt `
+>
 >`$ grep "multiple" teosinte_full.txt > teosinte_chr_multiple.txt `
 
